@@ -28,3 +28,48 @@ body {
   outline: none;
   background-color: #f1f1f1;
 }
+
+#style-tooltip {
+  position: absolute;
+  display: block;
+  padding: 2px 4px;
+  background-color: #efefef;
+  box-shadow: 0px 0px 1px 1px #dedede;
+}
+
+#style-tooltip>span {
+  position: relative;
+  display: inline-block;
+  background-color: #FFF;
+  padding: 8px;
+  transition: all 0.4s;
+}
+
+#style-tooltip>span:hover {
+  cursor: pointer;
+}
+
+#style-tooltip>span[data-value="bold"][data-active="true"],
+#style-tooltip>span[data-value="italics"][data-active="true"] {
+  background-color: #585858;
+  color: #FFF;
+}
+
+#style-tooltip>span[data-value="red"][data-active="true"] {
+  background-color: red;
+  color: #FFF;
+}
+
+[data-value="bold"] {
+  left: -2px;
+  font-weight: bold;
+}
+
+[data-value="italics"] {
+  font-style: italic;
+}
+
+[data-value="red"] {
+  right: -2px;
+  color: red;
+}

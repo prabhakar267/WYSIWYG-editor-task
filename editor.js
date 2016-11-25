@@ -73,10 +73,16 @@ $('body').on('focusout', '#editor>p:last-child', e => {
 });
 
 $('body').on('dblclick', '#editor>p', e => {
+  $('#style-tooltip').remove();
   let selectedItemRange = window.getSelection().getRangeAt(0);
   let stringInRange = selectedItemRange.toString();
   console.log(e.clientX);
   console.log(e.clientY);
+  $('body').append(
+    '<div id="style-tooltip" style="left: ' + e.clientX + 'px; top: ' + (e.clientY - 50) + 'px">\
+      <span data-active="true" data-value="bold">B</span><span data-value="italics">I</span><span data-value="red">R</span>\
+    </div>'
+  );
   // let childComponents = '<em>' + stringInRange + '</em>';
   // let newHTMLContent = document.createElement('strong');
   // newHTMLContent.innerHTML = childComponents;
