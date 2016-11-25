@@ -1,0 +1,30 @@
+body {
+  margin: auto;
+}
+
+[contenteditable=true]:empty:before{
+  content: attr(placeholder);
+  color: lightgrey;
+}
+
+#editor {
+  position:relative;
+  width: 60%;
+  padding: 10px;
+  top: 100px;
+  left: calc(20% - 10px);
+  font-size: 20px;
+  font-family: Open Sans, "sans-serif";
+}
+
+#editor>p {
+  padding: 5px 10px;
+  width: calc(100% - 20px);
+  margin: 0px;
+  margin-top: 20px;
+}
+
+#editor>p:focus {
+  outline: none;
+  background-color: #f1f1f1;
+}

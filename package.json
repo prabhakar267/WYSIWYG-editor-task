@@ -1,0 +1,15 @@
+{
+  "name": "editor",
+  "version": "1.0.0",
+  "description": "WYSIWYG-editor",
+  "main": "editor.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": "mbad0la/WYSIWYG-editor",
+  "author": "Mayank Badola",
+  "license": "MIT",
+  "dependencies": {
+    "dragula": "^3.7.2"
+  }
+}
