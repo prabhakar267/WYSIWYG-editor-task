@@ -2,7 +2,9 @@
 * what-you-see-is-what-you-get *
 *******************************/
 
+let prevNode;
 let parentNode;
+let styleNesting;
 
 function nextParagraph(el) {
   let referenceString = $(el).text();
@@ -25,6 +27,7 @@ $('body').on('keydown', '#editor>p', e => {
 
 $('body').on('focusout', '#editor>p', e => {
   let domNode = e.target;
+
   if ($(domNode).text().length == 0 && $('#editor>p').length > 1) {
     $(domNode).remove();
   }
@@ -35,41 +38,79 @@ $('body').on('dblclick', '#editor>p', e => {
   let selectionDone = window.getSelection();
   let selectedItemRange = selectionDone.getRangeAt(0);
   let locationBounds = selectedItemRange.getBoundingClientRect();
-  parentNode = selectedItemRange.commonAncestorContainer;
+  colorNode = null;
+  parentNode = $(selectedItemRange.commonAncestorContainer);
 
   $('body').append(
     '<div id="style-tooltip" style="left: ' + locationBounds.left + 'px; top: ' + (locationBounds.top - 40) + 'px">\
       <button id="b">B</button><button id="u">U</button><button id="r">R</button>\
     </div>'
   );
-});
 
-$('body').on('click', '#b', () => {
-  document.execCommand('bold');
-});
+  styleNesting = [];
 
-$('body').on('click', '#u', () => {
-  document.execCommand('underline');
-});
-
-$('body').on('click', '#r', () => {
-  console.log($(parentNode).parent().css('color'));
-  if ($(parentNode).parent().css('color') == 'rgb(255, 0, 0)') {
-    document.execCommand('removeFormat', false, 'forecolor');
-  } else {
-    document.execCommand('forecolor', false, 'red');
+  while (parentNode.prop('tagName') != 'P') {
+    switch(parentNode.prop('tagName')) {
+      case 'U':
+        $('#u').addClass('active');
+        styleNesting.push('underline');
+        break;
+      case 'B':
+        styleNesting.push('bold');
+        $('#b').addClass('active');
+        break;
+      case 'FONT':
+        $('#r').addClass('active');
+        colorNode = parentNode;
+        break;
+    }
+    parentNode = parentNode.parent();
   }
-
 });
 
 $('body').mouseenter(() => {
   $('#style-tooltip').remove();
-  selectionDone = undefined;
-  selectedItemRange = undefined;
 });
 
 $('body').on('mouseleave', '#style-tooltip', () => {
   $('#style-tooltip').remove();
-  selectionDone = undefined;
-  selectedItemRange = undefined;
+});
+
+$('body').on('click', '#b', () => {
+  document.execCommand('bold');
+  $('#b').toggleClass('active');
+});
+
+$('body').on('click', '#u', () => {
+  document.execCommand('underline');
+  $('#u').toggleClass('active');
+});
+
+$('body').on('click', '#r', () => {
+  if (colorNode && colorNode.css('color') == 'rgb(255, 0, 0)') {
+    document.execCommand('removeFormat', false, null);
+    styleNesting.forEach(style => {
+      document.execCommand(style);
+    });
+  } else {
+    document.execCommand('foreColor', false, 'red');
+  }
+  $('#r').toggleClass('active');
+});
+
+$('#scan-for-links').click(() => {
+  let matches = [];
+
+  $('#editor>p').each((i, node) => {
+    let paraContent = $(node).text();
+    matches.push(paraContent.match(/<a( href="[^"]+")?>[^<]+<\/a>/g));
+  });
+  console.log(matches);
+  $('#link-list').empty();
+
+  matches.forEach(paraArray => {
+    paraArray.forEach(matched => {
+      $('#link-list').append('<li>' + matched + '</li>');
+    });
+  });
 });
