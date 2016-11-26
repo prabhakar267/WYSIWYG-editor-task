@@ -105,12 +105,18 @@ body {
   right: -3px;
 }
 
-#scan-for-links {
-  position: relative;
-  width: 100px;
-  left: 50%;
-  margin-top: 25px;
-  margin-left: -50px;
+#options {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+button {
+  margin: 5px;
+}
+
+button:hover {
+  cursor: pointer;
 }
 
 #link-list>li:nth-child(even)>a {

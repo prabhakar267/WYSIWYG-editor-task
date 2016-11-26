@@ -5,6 +5,7 @@
 let prevNode;
 let parentNode;
 let styleNesting;
+let randomWordInst;
 
 function nextParagraph(el) {
   let referenceString = $(el).text();
@@ -13,6 +14,37 @@ function nextParagraph(el) {
     $(el).after('<p contenteditable="true" placeholder="Here, jot away ..."></p>');
     $(el).next().focus();
   }
+}
+
+function randomWord() {
+  let requestStr = "http://randomword.setgetgo.com/get.php";
+
+  $.ajax({
+    type: "GET",
+    url: requestStr,
+    data: { len: 4 },
+    dataType: "jsonp",
+    jsonpCallback: 'randomWordComplete'
+  });
+}
+
+function avoidTags(p1, p2) {
+  return ((p2 == undefined) || p2 == '')? p1:randomWordInst;
+}
+
+function randomWordComplete(data) {
+  randomWordInst = data.Word;
+
+  $('#editor>p').each((i, node) => {
+    let paraContent = $(node).html();
+    $(node).html(paraContent.replace(/<[^>]+>|(\b\w{4}\b)/g, avoidTags));
+    //console.log(paraContent.match(/(\b\w{4}\b)(?!>)/g))
+  });
+
+  $('#link-list>li').each((i, node) => {
+    let paraContent = $(node).html();
+    $(node).html(paraContent.replace(/\b\w{4}\b/g, avoidTags));
+  });
 }
 
 dragula([document.querySelector('#editor')]);
@@ -42,7 +74,7 @@ $('body').on('dblclick', '#editor>p', e => {
   parentNode = $(selectedItemRange.commonAncestorContainer);
 
   $('body').append(
-    '<div id="style-tooltip" style="left: ' + locationBounds.left + 'px; top: ' + (locationBounds.top - 40) + 'px">\
+    '<div id="style-tooltip" style="left: ' + locationBounds.left + 'px; top: ' + (locationBounds.top - 48) + 'px">\
       <button id="b">B</button><button id="u">U</button><button id="r">R</button>\
     </div>'
   );
@@ -103,8 +135,12 @@ $('#scan-for-links').click(() => {
 
   $('#editor>p').each((i, node) => {
     let paraContent = $(node).text();
-    matches.push(paraContent.match(/<a( href="[^"]+")?>[^<]+<\/a>/g));
+    let res = paraContent.match(/<a( href="[^"]+")?>[^<]+<\/a>/g);
+    if (res != null) {
+      matches.push(res);
+    }
   });
+
   console.log(matches);
   $('#link-list').empty();
 
@@ -114,3 +150,5 @@ $('#scan-for-links').click(() => {
     });
   });
 });
+
+$('#replace-four-letter-words').click(() => randomWord());
