@@ -54,45 +54,32 @@ body {
   border-top: 10px solid #585858;
 }
 
-#style-tooltip>span {
+#style-tooltip>button {
   position: relative;
   display: inline-block;
+  border: none;
+  outline: none;
   color: #232323;
-  width: 16px;
-  height: 15px;
-  padding: 3px;
+  font-weight: bold;
+  background-color: #585858;
   text-align: center;
   font-size: 14px;
   border-radius: 3px;
   transition: all 0.4s;
 }
 
-#style-tooltip>span[data-active="false"] {
-  box-shadow: 0px 0px 1px 1px #464646;
-}
-
-#style-tooltip>span[data-active="true"] {
-  background-color: #464646;
-  color: #FFF;
-}
-
-#style-tooltip>span:hover {
+#style-tooltip>button:hover {
   cursor: pointer;
 }
 
-[data-value="strong"] {
+#b {
   left: -3px;
-  font-weight: bold;
 }
 
-[data-value="em"] {
-  font-style: italic;
+#u {
+  text-decoration: underline;
 }
 
-[data-value="font"] {
+#r {
   right: -3px;
-}
-
-font {
-  color: red;
 }

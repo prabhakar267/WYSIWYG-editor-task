@@ -2,14 +2,13 @@
 * what-you-see-is-what-you-get *
 *******************************/
 
-let selectionDone = undefined;
-let selectedItemRange = undefined;
+let parentNode;
 
 function nextParagraph(el) {
   let referenceString = $(el).text();
 
   if (referenceString.length != 0) {
-    $(el).after('<p contenteditable="true" placeholder="Here. Jot away ..."></p>');
+    $(el).after('<p contenteditable="true" placeholder="Here, jot away ..."></p>');
     $(el).next().focus();
   }
 }
@@ -33,15 +32,34 @@ $('body').on('focusout', '#editor>p', e => {
 
 $('body').on('dblclick', '#editor>p', e => {
   $('#style-tooltip').remove();
-  selectionDone = window.getSelection();
-  selectedItemRange = selectionDone.getRangeAt(0);
-  let stringInRange = selectedItemRange.toString();
+  let selectionDone = window.getSelection();
+  let selectedItemRange = selectionDone.getRangeAt(0);
   let locationBounds = selectedItemRange.getBoundingClientRect();
+  parentNode = selectedItemRange.commonAncestorContainer;
+
   $('body').append(
     '<div id="style-tooltip" style="left: ' + locationBounds.left + 'px; top: ' + (locationBounds.top - 40) + 'px">\
-      <span data-active="false" data-value="strong">B</span><span data-active="false" data-value="em">I</span><span data-active="false" data-value="font">R</span>\
+      <button id="b">B</button><button id="u">U</button><button id="r">R</button>\
     </div>'
   );
+});
+
+$('body').on('click', '#b', () => {
+  document.execCommand('bold');
+});
+
+$('body').on('click', '#u', () => {
+  document.execCommand('underline');
+});
+
+$('body').on('click', '#r', () => {
+  console.log($(parentNode).parent().css('color'));
+  if ($(parentNode).parent().css('color') == 'rgb(255, 0, 0)') {
+    document.execCommand('removeFormat', false, 'forecolor');
+  } else {
+    document.execCommand('forecolor', false, 'red');
+  }
+
 });
 
 $('body').mouseenter(() => {
@@ -54,47 +72,4 @@ $('body').on('mouseleave', '#style-tooltip', () => {
   $('#style-tooltip').remove();
   selectionDone = undefined;
   selectedItemRange = undefined;
-});
-
-$('body').on('click', '#style-tooltip>span', e => {
-  let parent, firstChild, secondChild, newHTMLNode, newNodeChildren;
-  let activeTags = [];
-  let domNode = e.target;
-  let textContent = selectedItemRange.toString();
-  let styleToModify = $(domNode).attr('data-value');
-  let currentStyleStatus = $(domNode).attr('data-active');
-
-  if ($(domNode).attr('data-active') == 'true') {
-    $(domNode).attr('data-active', 'false');
-  } else {
-    $(domNode).attr('data-active', 'true');
-  }
-  $('#style-tooltip>span').each((i, node) => {
-    if ($(node).attr('data-active') == 'true') {
-      activeTags.push($(node).attr('data-value'))
-    }
-  });
-  activeTags.sort();
-  [parent, firstChild, secondChild] = activeTags;
-  if (parent != undefined) {
-    newHTMLNode = document.createElement(parent);
-    if (firstChild != undefined) {
-      if (secondChild != undefined) {
-        newNodeChildren = '<' + firstChild + '><' + secondChild + '>' + textContent + '<' + secondChild + '/><' + firstChild + '/>';
-      } else {
-        newNodeChildren = '<' + firstChild + '>' + textContent + '<' + firstChild + '/>';
-      }
-    } else {
-      newNodeChildren = textContent;
-    }
-    newHTMLNode.innerHTML = newNodeChildren;
-  } else {
-    newHTMLNode = document.createTextNode(textContent);
-  }
-
-  let ghost = document.createTextNode('\u200B');
-  selectedItemRange.deleteContents();
-  selectedItemRange.insertNode(newHTMLNode);
-  selectedItemRange.collapse(false);
-  selectedItemRange.insertNode(ghost);
 });
