@@ -2,32 +2,14 @@
 * what-you-see-is-what-you-get *
 *******************************/
 
-function placeCaretAtEnd(el) {
-  el.focus();
-  if (typeof window.getSelection != "undefined" && typeof document.createRange != "undefined") {
-    var range = document.createRange();
-    range.selectNodeContents(el);
-    range.collapse(false);
-    var sel = window.getSelection();
-    sel.removeAllRanges();
-    sel.addRange(range);
-  } else if (typeof document.body.createTextRange != "undefined") {
-    var textRange = document.body.createTextRange();
-    textRange.moveToElementText(el);
-    textRange.collapse(false);
-    textRange.select();
-  }
-}
+let selectionDone = undefined;
+let selectedItemRange = undefined;
 
-function divideParagraph(el) {
-  let caretPosition = window.getSelection().anchorOffset;
+function nextParagraph(el) {
   let referenceString = $(el).text();
-  let leftPart = referenceString.slice(0, caretPosition);
-  let rightPart = referenceString.slice(caretPosition);
 
-  if (leftPart != 0) {
-    $(el).text(leftPart);
-    $(el).after('<p contenteditable="true" placeholder="Here. Take this space to write ...">' + rightPart + '</p>');
+  if (referenceString.length != 0) {
+    $(el).after('<p contenteditable="true" placeholder="Here. Jot away ..."></p>');
     $(el).next().focus();
   }
 }
@@ -37,20 +19,7 @@ dragula([document.querySelector('#editor')]);
 $('body').on('keydown', '#editor>p', e => {
   let domNode = e.target;
   if (e.keyCode == 13) {
-    divideParagraph(domNode);
-    return false;
-  }
-});
-
-$('body').on('keydown', '#editor>p:last-child', e => {
-  let domNode = e.target;
-  if (e.keyCode == 13) {
-    let caretPosition = window.getSelection().anchorOffset;
-    let paralength = $(domNode).html().length;
-    if (paralength != 0 && caretPosition == paralength) {
-      $('#editor').append('<p contenteditable="true" placeholder="Here. Take this space to write ..."></p>');
-      $('#editor>p:last-child').focus();
-    }
+    nextParagraph(domNode);
     return false;
   }
 });
@@ -64,17 +33,68 @@ $('body').on('focusout', '#editor>p', e => {
 
 $('body').on('dblclick', '#editor>p', e => {
   $('#style-tooltip').remove();
-  let selectedItemRange = window.getSelection().getRangeAt(0);
+  selectionDone = window.getSelection();
+  selectedItemRange = selectionDone.getRangeAt(0);
   let stringInRange = selectedItemRange.toString();
   let locationBounds = selectedItemRange.getBoundingClientRect();
   $('body').append(
     '<div id="style-tooltip" style="left: ' + locationBounds.left + 'px; top: ' + (locationBounds.top - 40) + 'px">\
-      <span data-active="true" data-value="bold">B</span><span data-active="false" data-value="italics">I</span><span data-active="false" data-value="red">R</span>\
+      <span data-active="false" data-value="strong">B</span><span data-active="false" data-value="em">I</span><span data-active="false" data-value="font">R</span>\
     </div>'
   );
-  // let childComponents = '<em>' + stringInRange + '</em>';
-  // let newHTMLContent = document.createElement('strong');
-  // newHTMLContent.innerHTML = childComponents;
-  // selectedItemRange.deleteContents();
-  // selectedItemRange.insertNode(newHTMLContent);
+});
+
+$('body').mouseenter(() => {
+  $('#style-tooltip').remove();
+  selectionDone = undefined;
+  selectedItemRange = undefined;
+});
+
+$('body').on('mouseleave', '#style-tooltip', () => {
+  $('#style-tooltip').remove();
+  selectionDone = undefined;
+  selectedItemRange = undefined;
+});
+
+$('body').on('click', '#style-tooltip>span', e => {
+  let parent, firstChild, secondChild, newHTMLNode, newNodeChildren;
+  let activeTags = [];
+  let domNode = e.target;
+  let textContent = selectedItemRange.toString();
+  let styleToModify = $(domNode).attr('data-value');
+  let currentStyleStatus = $(domNode).attr('data-active');
+
+  if ($(domNode).attr('data-active') == 'true') {
+    $(domNode).attr('data-active', 'false');
+  } else {
+    $(domNode).attr('data-active', 'true');
+  }
+  $('#style-tooltip>span').each((i, node) => {
+    if ($(node).attr('data-active') == 'true') {
+      activeTags.push($(node).attr('data-value'))
+    }
+  });
+  activeTags.sort();
+  [parent, firstChild, secondChild] = activeTags;
+  if (parent != undefined) {
+    newHTMLNode = document.createElement(parent);
+    if (firstChild != undefined) {
+      if (secondChild != undefined) {
+        newNodeChildren = '<' + firstChild + '><' + secondChild + '>' + textContent + '<' + secondChild + '/><' + firstChild + '/>';
+      } else {
+        newNodeChildren = '<' + firstChild + '>' + textContent + '<' + firstChild + '/>';
+      }
+    } else {
+      newNodeChildren = textContent;
+    }
+    newHTMLNode.innerHTML = newNodeChildren;
+  } else {
+    newHTMLNode = document.createTextNode(textContent);
+  }
+
+  let ghost = document.createTextNode('\u200B');
+  selectedItemRange.deleteContents();
+  selectedItemRange.insertNode(newHTMLNode);
+  selectedItemRange.collapse(false);
+  selectedItemRange.insertNode(ghost);
 });

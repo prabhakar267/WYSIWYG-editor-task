@@ -11,8 +11,9 @@ body {
   position:relative;
   width: 60%;
   padding: 10px;
-  top: 100px;
-  left: calc(20% - 10px);
+  top: 50px;
+  margin-top: 50px;
+  margin-left: calc(20% - 10px);
   font-size: 18px;
   font-family: Open Sans, "sans-serif";
 }
@@ -26,7 +27,7 @@ body {
 
 #editor>p:focus {
   outline: none;
-  background-color: #f1f1f1;
+  /*background-color: #f1f1f1;*/
 }
 
 #style-tooltip {
@@ -70,14 +71,8 @@ body {
   box-shadow: 0px 0px 1px 1px #464646;
 }
 
-#style-tooltip>span[data-value="bold"][data-active="true"],
-#style-tooltip>span[data-value="italics"][data-active="true"] {
+#style-tooltip>span[data-active="true"] {
   background-color: #464646;
-  color: #FFF;
-}
-
-#style-tooltip>span[data-value="red"][data-active="true"] {
-  background-color: #f52e2e;
   color: #FFF;
 }
 
@@ -85,16 +80,19 @@ body {
   cursor: pointer;
 }
 
-[data-value="bold"] {
-  left: -2.5px;
+[data-value="strong"] {
+  left: -3px;
   font-weight: bold;
 }
 
-[data-value="italics"] {
+[data-value="em"] {
   font-style: italic;
 }
 
-[data-value="red"] {
-  right: -2.5px;
+[data-value="font"] {
+  right: -3px;
+}
+
+font {
   color: red;
 }
